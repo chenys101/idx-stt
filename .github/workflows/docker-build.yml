@@ -25,10 +25,10 @@ jobs:
         with:
           context: .
           push: false
-          # 修复：注释移到上方，Tag行仅保留纯净的标签值（无空格、无#）
-          # 标签规则：仅允许小写字母、数字、. _ - /（且不能以/开头）
+          # 注释单独写在上方，Tag行仅保留纯标签值（无任何多余字符）
+          # 合法Tag规则：小写字母、数字、. _ - /（无空格、#、@等）
           tags: |
             idx-stt:latest
-            idx-stt:${{ github.sha }} # 注释移到行尾也不行，必须单独行！
+            idx-stt:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

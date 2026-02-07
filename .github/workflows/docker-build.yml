@@ -17,6 +17,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 新增步骤1：安装与Dockerfile一致的Go版本（用于调试）
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.20' # 必须和Dockerfile中的Go版本一致
+
+      # 新增步骤2：手动执行go mod download，打印详细错误
+      - name: Debug go mod download
+        run: |
+          go version
+          go env
+          go mod download -v # -v 打印详细下载日志，定位失败的依赖
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -25,8 +38,6 @@ jobs:
         with:
           context: .
           push: false
-          # 注释单独写在上方，Tag行仅保留纯标签值（无任何多余字符）
-          # 合法Tag规则：小写字母、数字、. _ - /（无空格、#、@等）
           tags: |
             idx-stt:latest
             idx-stt:${{ github.sha }}

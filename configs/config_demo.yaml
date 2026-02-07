@@ -1,0 +1,10 @@
+server:
+  port: 8080
+  read_timeout: 15s
+  write_timeout: 15s
+
+database:
+  dsn: "file:data.db?cache=shared&_fk=1&_journal_mode=WAL"
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 1h

@@ -1,0 +1,17 @@
+# Backend
+/backend/data.db
+/backend/config.yaml
+
+# Frontend
+/ui/node_modules
+/ui/dist
+/ui/.DS_Store
+/ui/coverage
+/ui/.env.local
+/ui/.env.*.local
+/ui/npm-debug.log*
+/ui/yarn-debug.log*
+/ui/yarn-error.log*
+
+**/.idx
+**/.idea

@@ -20,7 +20,7 @@
     workspace = {
       onCreate = {
         # Open editors for the following files by default, if they exist:
-        default.openFiles = ["main.go"];
+        default.openFiles = ["cmd/main.go"];
       };
     };
     # Enable previews and customize configuration
@@ -33,7 +33,7 @@
             "--signal" "SIGHUP"
             "-w" "."
             "-e" "go,html"
-            "-x" "go run main.go -addr localhost:$PORT"
+            "-x" "go run cmd/main.go -addr localhost:$PORT"
           ];
           manager = "web";
         };

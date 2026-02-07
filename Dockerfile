@@ -1,36 +1,31 @@
-
-# Build Stage
-FROM golang:1.20-alpine AS builder
-
+# 核心修改：编译阶段使用Go 1.24.0 alpine官方镜像
+FROM golang:1.24.0-alpine AS builder
 WORKDIR /app
 
-# Copy go module and sum files
+# 安装git，配置Go模块代理（海外环境用官方代理，稳定）
+RUN apk add --no-cache git
+ENV GOPROXY=https://proxy.golang.org,direct
+
+# 复制依赖清单
 COPY go.mod go.sum ./
-# Download dependencies
-RUN go mod download
 
-# Copy the rest of the source code
+# 保留-v参数（1.24.0支持），清理缓存后下载依赖
+RUN go clean -modcache && go mod download -v
+
+# 复制项目代码并编译（替换为你的真实入口文件，如./cmd/main.go）
 COPY . .
+# 编译为静态二进制文件（CGO禁用，保证可移植性）
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o idx-stt ./cmd/main.go
 
-# Build the Go application
-# CGO_ENABLED=0 is important for creating a statically linked executable
-# -o main specifies the output file name
-RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/main.go
-
-# Final Stage
-FROM alpine:latest
-
+# 运行阶段（无需修改，仅运行二进制文件）
+FROM alpine:3.18
+RUN apk add --no-cache ca-certificates tzdata
+ENV TZ=Asia/Shanghai
 WORKDIR /app
+COPY --from=builder /app/idx-stt .
 
-# Copy the built executable from the builder stage
-COPY --from=builder /app/main .
-# Copy the config file
-COPY config.yaml .
-# Copy the database file
-COPY data.db .
+# 暴露项目实际端口（根据你的项目调整，如9002）
+EXPOSE 9002
 
-# Expose the port the application runs on
-EXPOSE 8080
-
-# The command to run the application
-ENTRYPOINT ["./main"]
+# 启动二进制文件
+CMD ["./idx-stt"]

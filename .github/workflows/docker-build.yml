@@ -39,6 +39,6 @@ jobs:
           push: false
           tags: |
             idx-stt:latest
-            idx-stt:${{ github.sha | substr(0,7) }}
+            idx-stt:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

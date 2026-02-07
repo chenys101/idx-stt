@@ -28,8 +28,6 @@ COPY --from=builder /app/main .
 COPY config.yaml .
 # Copy the database file
 COPY data.db .
-# Copy the frontend UI files
-COPY stt/ui ./stt/ui
 
 # Expose the port the application runs on
 EXPOSE 8080

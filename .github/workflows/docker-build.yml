@@ -17,18 +17,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 核心修改：Go版本改为1.24.0（精确版本）
-      - name: Set up Go (for debug)
+      - name: Set up Go (1.24.0)
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.0' # 精确指定1.24.0，避免版本漂移
+          go-version: '1.24.0'
 
-      # 保留-v参数（1.24.0完全支持）
+      # 修复：移除-v，改用-x（go mod download唯一支持的调试参数）
       - name: Debug go mod download
         run: |
           go version
           go env
-          go mod download -v # 1.24.0支持-v，打印详细依赖下载日志
+          go mod download -x # -x 打印底层命令，替代-v的调试作用
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -40,6 +39,6 @@ jobs:
           push: false
           tags: |
             idx-stt:latest
-            idx-stt:${{ github.sha }}
+            idx-stt:${{ github.sha | substr(0,7) }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

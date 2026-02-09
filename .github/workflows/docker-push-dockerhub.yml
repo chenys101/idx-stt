@@ -47,9 +47,8 @@ jobs:
           push: true
           # 镜像标签：Docker Hub 规范格式（用户名/镜像名:标签）
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/idx-stt:latest  # 固定latest标签
-            ${{ secrets.DOCKER_HUB_USERNAME }}/idx-stt:${{ github.sha }}  # 提交哈希标签
-            # 标签触发时，使用标签名作为镜像标签（如v1.0.0）
+            ${{ secrets.DOCKER_HUB_USERNAME }}/idx-stt:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/idx-stt:${{ github.sha }} 
             ${{ startsWith(github.ref, 'refs/tags/') && format('{0}/idx-stt:{1}', secrets.DOCKER_HUB_USERNAME, github.ref_name) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -20,5 +20,7 @@ RUN apk add --no-cache ca-certificates tzdata
 ENV TZ=Asia/Shanghai
 WORKDIR /app
 COPY --from=builder /app/idx-stt .
+COPY --from=builder /app/config.yaml .
+COPY --from=builder /app/data.db .
 EXPOSE 9002
 CMD ["./idx-stt"]

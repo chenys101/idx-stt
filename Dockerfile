@@ -16,7 +16,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o idx-stt ./cmd/main.go
 
 FROM alpine:3.18
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata bash
 ENV TZ=Asia/Shanghai
 WORKDIR /app
 COPY --from=builder /app/idx-stt .

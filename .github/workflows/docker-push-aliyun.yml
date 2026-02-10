@@ -1,9 +1,6 @@
 name: Build and Push Docker Image to Aliyun ACR
 
 on:
-  push:
-    branches: [ main ]
-    tags: [ 'v*' ]
   workflow_dispatch:
 
 jobs:

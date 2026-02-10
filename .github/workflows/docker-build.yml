@@ -1,11 +1,5 @@
 name: Build Docker Image
 
-on:
-  push:
-    branches: [ main ]
-    tags: [ 'v*' ]
-  workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest

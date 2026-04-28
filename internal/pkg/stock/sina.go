@@ -81,7 +81,7 @@ func GetStockData(StockCodes ...string) (*[]StockInfo, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Printf("%v", err)
 		return &[]StockInfo{}, err
 	}
 	req.Header.Set("Referer", "http://finance.sina.com.cn")
@@ -89,7 +89,7 @@ func GetStockData(StockCodes ...string) (*[]StockInfo, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Printf("%v", err)
 		return &[]StockInfo{}, err
 	}
 	defer resp.Body.Close()
@@ -98,7 +98,7 @@ func GetStockData(StockCodes ...string) (*[]StockInfo, error) {
 	utf8Reader := transform.NewReader(resp.Body, decoder)
 	body, err := io.ReadAll(utf8Reader)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Printf("%v", err)
 		return &[]StockInfo{}, err
 	}
 
@@ -112,7 +112,7 @@ func GetStockData(StockCodes ...string) (*[]StockInfo, error) {
 	for _, data := range dataList {
 		stockData, err := ParseFullSingleStockData(data)
 		if err != nil {
-			log.Printf(err.Error())
+			log.Printf("%v", err)
 			continue
 		}
 		addStockFollowData(stockData)

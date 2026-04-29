@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 评估并（可选）最小改造当前 Gin + SQLite 服务，使其能在主流 Serverless（以 AWS Lambda + API Gateway 为参考）模式下运行，同时保留原有本地长驻进程运行方式。
+**Goal:** 在不考虑/不保证用户模块（`/api/v1/users`）的前提下，评估并（可选）最小改造当前 Gin + SQLite 服务，使其能在主流 Serverless（以 AWS Lambda + API Gateway 为参考）模式下运行，同时保留原有本地长驻进程运行方式；重点确保股票相关接口（`/api/v1/std/*`）可用。
 
 **Architecture:** 将“HTTP 路由构建”与“进程启动/事件入口”解耦：保留现有 `cmd/main.go` 的长驻模式，同时新增一个 Serverless 入口（Lambda handler），复用同一套 `route.SetupRouter()`。数据库层从“本地 data.db”切换为“可配置的外部数据库/持久化方案”，并避免在每次 cold start 做破坏性迁移。
 
@@ -21,7 +21,7 @@
    - Serverless：平台把请求以事件方式交给函数，不允许你自行长期 listen；要用“事件 → http.Handler”适配层
 2. **SQLite 本地文件不适合函数持久化写入**
    - 现状：默认 `dsn: "data.db"`，并且 Dockerfile 会把 `data.db` 拷入镜像（[config.yaml](file:///workspace/config.yaml#L1-L5)，[Dockerfile](file:///workspace/Dockerfile#L23-L25)）
-   - Serverless：文件系统通常是只读或短暂的（即便可写也会丢失），而应用又会写入 `users/stock_monitors` 表
+   - Serverless：文件系统通常是只读或短暂的（即便可写也会丢失），而股票监控接口会写入 `stock_monitors` 表（[StockMonitor](file:///workspace/internal/model/stock.go#L15-L20)）
 
 ### 0.2 推荐路线（从易到难）
 
@@ -232,7 +232,7 @@ func Connect(opts Options) error {
 	sqlDB.SetConnMaxLifetime(opts.ConnMaxLifetime)
 
 	if opts.AutoMigrate {
-		if err := db.AutoMigrate(&model.User{}, &model.StockMonitor{}); err != nil {
+		if err := db.AutoMigrate(&model.StockMonitor{}); err != nil {
 			return err
 		}
 	}
@@ -455,7 +455,7 @@ Expected: PASS
 
 ### Task 5: 数据持久化策略落地（Serverless 必选）
 
-**结论先行：** 如果要在函数中写入 `users/stock_monitors`，就必须把 SQLite 换成“外部 DB”或“托管存储”。
+**结论先行：** 如果要在函数中写入 `stock_monitors`（以及后续可能新增的业务表），就必须把 SQLite 换成“外部 DB”或“托管存储”。
 
 此 Task 分两条支线（二选一），建议优先 **MySQL/Postgres**：
 
@@ -502,7 +502,7 @@ database:
 
 ## 4. 验证清单（Definition of Done）
 
-- [ ] 本地模式 `go run cmd/main.go` 正常启动，API 可用
+- [ ] 本地模式 `go run cmd/main.go` 正常启动，股票相关 API（`/api/v1/std/*`）可用
 - [ ] Serverless 模式（以 AWS Lambda 为例）可通过 `go build ./cmd/lambda` 编译
 - [ ] DB 持久化策略明确：生产不依赖本地 `data.db`
 - [ ] `go test ./...` 通过（至少有 bootstrap/database 的基础单测）
@@ -519,4 +519,3 @@ database:
   - 依赖与限制：0.2、Task 5
 - Placeholder 扫描：
   - 所有任务均给出明确文件路径与可落地代码/命令；仅“方案选择”以分支方式呈现，属于需求决策点，不是实现占位符
-
